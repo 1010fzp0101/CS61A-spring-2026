@@ -174,10 +174,10 @@ def play(strategy0, strategy1, update, score0=0, score1=0, dice=six_sided, goal=
     while not game_over(score0, score1, goal):
         if who == 0:
             score0 = update(strategy0(score0, score1), score0, score1, dice)
-            print("Debug: score0 is", score0)
+            # print("Debug: score0 is", score0)
         else:
             score1 = update(strategy1(score1, score0), score1, score0, dice)
-            print("Debug: score1 is", score1)
+            # print("Debug: score1 is", score1)
         who = 1 - who
     # END PROBLEM 5
     return score0, score1
@@ -205,6 +205,9 @@ def always_roll(n):
 
     # BEGIN PROBLEM 6
     "*** YOUR CODE HERE ***"
+    def h(s0, s1):
+        return n
+    return h
     # END PROBLEM 6
 
 
@@ -237,6 +240,16 @@ def is_always_roll(strategy, goal=GOAL):
     """
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+    k = 0
+    score = strategy(0, 0)
+    while k < goal:
+        i = 0
+        while i < goal:
+            if strategy(k, i) != score:
+                return False
+            i += 1
+        k += 1
+    return True
     # END PROBLEM 7
 
 
@@ -254,6 +267,13 @@ def make_averaged(original_function, times_called=1000):
 
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    def f(*args):
+        s, k = 0, 1
+        while k <= times_called:
+            s += original_function(*args)
+            k += 1
+        return s / times_called
+    return f 
     # END PROBLEM 8
 
 
@@ -267,6 +287,16 @@ def max_scoring_num_rolls(dice=six_sided, times_called=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    averaged_dice = make_averaged(roll_dice, times_called)
+    k, num = 1, 1
+    max_score = 0
+    while k <= 10:
+        current_score = averaged_dice(k, dice)
+        if current_score > max_score:
+            num = k
+            max_score = current_score
+        k += 1
+    return num
     # END PROBLEM 9
 
 
@@ -303,7 +333,9 @@ def run_experiments():
     print("sus_strategy win rate:", average_win_rate(sus_strategy))
     print("final_strategy win rate:", average_win_rate(final_strategy))
     "*** You may add additional experiments as you wish ***"
-
+    print("always_roll(9) win rate:", average_win_rate(always_roll(9)))
+    print("always_roll(1) win rate:", average_win_rate(always_roll(1)))
+    print("always_roll(2) win rate:", average_win_rate(always_roll(2)))
 
 
 
@@ -312,7 +344,9 @@ def boar_strategy(score, opponent_score, threshold=11, num_rolls=6):
     points, and returns NUM_ROLLS otherwise. Ignore the Sus Fuss rule.
     """
     # BEGIN PROBLEM 10
-    return num_rolls  # Remove this line once implemented.
+    if boar_brawl(score, opponent_score) >= threshold:
+        return 0
+    return num_rolls
     # END PROBLEM 10
 
 
@@ -321,7 +355,9 @@ def sus_strategy(score, opponent_score, threshold=11, num_rolls=6):
     THRESHOLD points, and returns NUM_ROLLS otherwise. Consider both the Boar Brawl and
     Suss Fuss rules."""
     # BEGIN PROBLEM 11
-    return num_rolls  # Remove this line once implemented.
+    if sus_update(0, score, opponent_score) - score >= threshold:
+        return 0
+    return num_rolls
     # END PROBLEM 11
 
 
@@ -331,7 +367,14 @@ def final_strategy(score, opponent_score):
     *** YOUR DESCRIPTION HERE ***
     """
     # BEGIN PROBLEM 12
-    return 6  # Remove this line once implemented.
+    k, num_rolls = 1, 0
+    max_score = sus_update(0, score, opponent_score) - score
+    while k <= 10:
+        current_score = sus_update(0, score, opponent_score) - score
+        if current_score > max_score:
+            max_score, num_rolls = current_score, k
+        k += 1
+    return num_rolls
     # END PROBLEM 12
 
 
